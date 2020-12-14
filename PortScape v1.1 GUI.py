@@ -73,6 +73,7 @@ def start():
 		if fopt.get() == 0 or 2:
 			sr = sr.filter(ImageFilter.GaussianBlur(radius=blur)) # Gaussian blur
 		elif fopt.get() == 1 or 2:
+			# https://stackoverflow.com/questions/43618910/pil-drawing-a-semi-transparent-square-overlay-on-image
 			sr = i.eval(sr, lambda x: x/2)
 
 		return sr
