@@ -69,10 +69,11 @@ def start():
 			s = img.crop(box=(0,imgcent,img.size[0],img.size[1]))	
 
 		sr = s.resize(tuple(z*2 for z in s.size)) # Scaling up by 2 because img was split in two
-			
-		if fopt.get() == 0 or 2:
+		
+		if fopt.get() != 1:
 			sr = sr.filter(ImageFilter.GaussianBlur(radius=blur)) # Gaussian blur
-		elif fopt.get() == 1 or 2:
+		
+		if fopt.get() != 0:
 			# https://stackoverflow.com/questions/43618910/pil-drawing-a-semi-transparent-square-overlay-on-image
 			sr = i.eval(sr, lambda x: x/2)
 
@@ -99,18 +100,18 @@ def start():
 
 	print('>> Exporting image...')
 	dt = time.strftime('%d-%m-%y_%H-%M-%S')
-	bkg.save(f'./walls/wallpaper-{dt}.png')
+	path = f'./walls/wallpaper-{dt}.png'
+	bkg.save(path)
 	bkg.show()
 
 	# ~ Resetting GUI ~
-	#startbutton.config(state='disabled')
 	browsebutton.config(state='normal')
 	mutebutton.config(state='normal')
-	#mvar = ''
-	#messvar.set(mvar)
 
-	# ~ Opening file ~
-	#os.startfile(fpath)
+	mvar = f'Done. File saved as ./walls/wallpaper-{dt}.png'
+	print(f'>> {mvar}')
+	messvar.set(mvar)
+
 
 
 
