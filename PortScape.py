@@ -54,5 +54,5 @@ bkg.paste(img, box=(math.ceil((wid/2)-(img.size[0]/2)), 0)) # Paste original ima
 
 print('>> Exporting image...')
 dt = time.strftime('%d-%m-%y_%H-%M-%S')
-bkg.save(f'wallpaper-{dt}.png')
+bkg.save(f'./walls/wallpaper-{dt}.png')
 bkg.show()
