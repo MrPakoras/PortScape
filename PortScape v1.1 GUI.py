@@ -8,7 +8,7 @@ print('>> Running...')
 
 master = Tk()
 #master.iconbitmap('tbcarrowicon.ico')
-master.title('PortScape v1.0 GUI')
+master.title('PortScape v1.1 GUI')
 master.geometry('400x225')
 master.resizable(False, False)
 master.configure(background='#1d1c2c')
