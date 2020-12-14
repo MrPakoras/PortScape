@@ -70,9 +70,9 @@ def start():
 
 		sr = s.resize(tuple(z*2 for z in s.size)) # Scaling up by 2 because img was split in two
 			
-		if fopt.get() == 0:
+		if fopt.get() == 0 or 2:
 			sr = sr.filter(ImageFilter.GaussianBlur(radius=blur)) # Gaussian blur
-		elif fopt.get() == 1:
+		elif fopt.get() == 1 or 2:
 			sr = i.eval(sr, lambda x: x/2)
 
 		return sr
