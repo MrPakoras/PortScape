@@ -123,8 +123,6 @@ infolab = Label(master, width=58, justify='left', anchor='center', text="Please 
 master.rowconfigure(0, pad=20)
 infolab.grid(row=0)
 
-
-
 ## Address bar and browse button
 addrframe = Frame(master, width=400, bg='#1d1c2c')
 addrframe.pack_propagate(0)
@@ -141,9 +139,9 @@ browsebutton = Button(addrframe, text='Browse', command=browse, width=9, bg='#1d
 browsebutton.config(state='normal')
 browsebutton.grid(row=0, column=1, pady=4)
 
-## Mute audio check button
+## border check button
 bordvar = IntVar()
-bordvar.set(1)
+bordvar.set(0)
 mutebutton = Checkbutton(master, text='Add border', variable=bordvar, bg='#1d1c2c', fg='#8d73ff', activebackground='#1d1c2c' , activeforeground='#8d73ff')
 mutebutton.grid(row=3, column=0)
 mutebutton.config(state='normal')
