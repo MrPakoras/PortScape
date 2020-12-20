@@ -74,8 +74,12 @@ def start():
 		sr = s.resize(tuple(z*2 for z in s.size)) # Scaling up by 2 because img was split in two
 
 		if cmvar.get() == 1: # Colour map
-			cmblack = cmbvar.get()
-			cmwhite = cmwvar.get()
+			if invvar.get() == 1:
+				cmblack = cmwvar.get()
+				cmwhite = cmbvar.get()
+			else:
+				cmblack = cmbvar.get()
+				cmwhite = cmwvar.get()
 			sr = sr.convert('L') # Convert to greyscale
 			sr = ImageOps.colorize(sr, black=cmblack, white=cmwhite) # colour map
 
@@ -208,6 +212,10 @@ cmw = Entry(cmframe, width=10, bg='#5a49a4', fg='#d7ceff', disabledbackground='#
 # cmw.insert(0,'#FFFFFF')
 # cmw.bind('<FocusIn>', clr) # Clears text when clicked
 
+invvar = IntVar()
+invvar.set(0)
+invbutton = Checkbutton(cmframe, text='Invert values', variable=invvar, bg='#1d1c2c', fg='#8d73ff', activebackground='#1d1c2c' , activeforeground='#8d73ff') # Invert white and black
+
 def cmvarset(): # Setting StringVar to text
 	cmvals = [cmb.get(),cmw.get()]
 
@@ -224,7 +232,7 @@ def cmvarset(): # Setting StringVar to text
 
 
 
-cmset = Button(cmframe, text='Set', command=cmvarset, width=10, bg='#1d1c2c', fg='#8d73ff', activebackground='#1d1c2c' , activeforeground='#8d73ff')
+cmset = Button(cmframe, text='Set', command=cmvarset, width=4, bg='#1d1c2c', fg='#8d73ff', activebackground='#1d1c2c' , activeforeground='#8d73ff')
 
 cmb.config(state='disabled')
 cmw.config(state='disabled')
@@ -234,8 +242,9 @@ cmblab.grid(row=0, column=0)
 cmb.grid(row=0, column=1)
 cmwlab.grid(row=0, column=2)
 cmw.grid(row=0, column=3)
-cmset.grid(row=0, column=4)
-cmframe.columnconfigure(4, pad=20)
+invbutton.grid(row=0, column=4)
+cmset.grid(row=0, column=5)
+# cmframe.columnconfigure(5, pad=20)
 
 
 
