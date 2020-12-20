@@ -11,9 +11,10 @@ print('>> Running...')
 master = Tk()
 #master.iconbitmap('tbcarrowicon.ico')
 master.title('PortScape v1.1 GUI')
-master.geometry('400x225')
+master.geometry('448x252')
 master.resizable(False, False)
 master.configure(background='#1d1c2c')
+master.columnconfigure(0, weight=2)
 #bkg = PhotoImage(file='bkg.png')
 #setb = Label(master, image=bkg)
 #setb.place(x=0, y=0, relwidth=1, relheight=1)
@@ -135,7 +136,7 @@ master.rowconfigure(0, pad=20)
 infolab.grid(row=0)
 
 ## Address bar and browse button
-addrframe = Frame(master, width=400, bg='#1d1c2c')
+addrframe = Frame(master, width=448, bg='#1d1c2c')
 addrframe.pack_propagate(0)
 addrframe.grid(row=2, column=0)
 
@@ -153,7 +154,7 @@ browsebutton.grid(row=0, column=1, pady=4)
 
 
 ## border and colour map check buttons.
-checkframe = Frame(master, width=400, bg='#1d1c2c')
+checkframe = Frame(master, width=448, bg='#1d1c2c')
 checkframe.pack_propagate(0)
 checkframe.grid(row=3, column=0)
 
@@ -181,26 +182,11 @@ cmbutton.config(state='normal')
 
 
 
-## Filer options radio button
-frframe = Frame(master, width=400, bg='#d7ceff')
-frframe.pack_propagate(0)
-frframe.grid(row=4, column=0)
-
-fo = ['None','Gaussian Blur', 'Darken', 'Blur & Darken'] # Filter options
-fopt = IntVar()
-fopt.set(0)
-
-for x in fo:
-	n = fo.index(x)
-	filterrad = Radiobutton(frframe, text=x, value=n, variable=fopt, bg='#d7ceff', fg='#5a49a4', activebackground='#d7ceff' , activeforeground='#5a49a4')
-	filterrad.grid(row=4, column=n)
-
-
-
 ## Colour Map
-cmframe = Frame(master, width=400, bg='#1d1c2c')
+cmframe = Frame(master, width=448, bg='#1d1c2c')
 cmframe.pack_propagate(0)
-cmframe.grid(row=5, column=0)
+cmframe.grid(row=4, column=0)
+master.rowconfigure(4, pad=10)
 
 # def clr(event):
 #   event.widget.delete(0, 'end')
@@ -250,6 +236,23 @@ cmwlab.grid(row=0, column=2)
 cmw.grid(row=0, column=3)
 cmset.grid(row=0, column=4)
 cmframe.columnconfigure(4, pad=20)
+
+
+
+## Filer options radio button
+frframe = Frame(master, width=448, bg='#d7ceff')
+frframe.pack_propagate(0)
+frframe.grid(row=5, column=0)
+
+fo = ['None','Gaussian Blur', 'Darken', 'Blur & Darken'] # Filter options
+fopt = IntVar()
+fopt.set(0)
+
+for x in fo:
+	n = fo.index(x)
+	filterrad = Radiobutton(frframe, text=x, value=n, variable=fopt, bg='#d7ceff', fg='#5a49a4', activebackground='#d7ceff' , activeforeground='#5a49a4')
+	filterrad.grid(row=4, column=n)
+
 
 
 ## JoJoTBCfy
