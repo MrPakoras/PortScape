@@ -1,7 +1,9 @@
 # PortScape
 Turn portrait images into landscape wallpapers
 
-* Open GUI version
+* Before using the program, run installlibs.bat to install required modules
+
+* Open PortScape v1.2
 * Select a file
 * Choose whether you want a border on your image or not
 * Choose whether you want to colour map the background or not:
