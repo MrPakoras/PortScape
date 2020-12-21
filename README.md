@@ -10,7 +10,7 @@ Turn portrait images into landscape wallpapers
 	* Click _**Choose colour**_ and pick a colour value for the blacks
 	* Click _**Choose colour**_ and pick a colour value for the whites
 	
-	> Colour map function convers image to greyscale and replaces black and white pixels with these colours
+	> Colour map function converts image to greyscale and replaces black and white pixels with these colours
 * Choose filter options:
 	*
 	* Gaussian Blur - Applies a blur to the background of the image
