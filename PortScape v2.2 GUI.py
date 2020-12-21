@@ -1,8 +1,8 @@
-# v1.2.1 - Using Tkinter built in colour picker
+# v2.2 - Implementing multi threading
 
+import os, time, re, mimetypes, math, threading
 from tkinter import *
 from tkinter import filedialog, colorchooser
-import os, time, re, mimetypes, math
 from PIL import Image as i
 from PIL import ImageFilter, ImageOps, ImageDraw
 
@@ -270,8 +270,9 @@ for x in fo:
 
 
 
-## JoJoTBCfy
-startbutton = Button(master, text='Create!', command=start, width=20, height=2, bg='#1d1c2c', fg='#8d73ff', activebackground='#1d1c2c' , activeforeground='#8d73ff')
+## Create
+# Threading tutorial: https://www.youtube.com/watch?v=jnrCpA1xJPQ
+startbutton = Button(master, text='Create!', command=lambda:threading.Thread(target=start).start(), width=20, height=2, bg='#1d1c2c', fg='#8d73ff', activebackground='#1d1c2c' , activeforeground='#8d73ff')
 # master.rowconfigure(3, weight=1)
 master.rowconfigure(6, pad=10)
 startbutton.grid(row=6, column=0)
