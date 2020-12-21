@@ -11,7 +11,7 @@ Turn portrait images into landscape wallpapers
 	
 	> Colour map function converts image to greyscale and replaces black and white pixels with these colours
 * Choose filter options:
-	* None - ...none bruh...
+	* None - ...none bruh.
 	* Gaussian Blur - Applies a blur to the background of the image
 	* Darken - Applies a black tint to the background
 	* Blur & Darken - Does both
