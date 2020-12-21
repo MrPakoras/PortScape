@@ -1,7 +1,6 @@
 # PortScape
 Turn portrait images into landscape wallpapers
-
-* Before using the program, run installlibs.bat to install required modules
+> Before using the program, run installlibs.bat to install required modules
 
 * Open PortScape v1.2.1
 * Select a file
