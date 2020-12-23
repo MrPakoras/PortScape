@@ -1,4 +1,4 @@
-# v2.2 - Implementing multi threading
+# v2.2.1 - Small patch disabling create button whilst creating image
 
 import os, time, re, mimetypes, math, threading
 from tkinter import *
@@ -10,7 +10,7 @@ print('>> Running...')
 
 master = Tk()
 #master.iconbitmap('tbcarrowicon.ico')
-master.title('PortScape v1.1 GUI')
+master.title('PortScape v12.2 GUI')
 master.geometry('448x252')
 master.resizable(False, False)
 master.configure(background='#1d1c2c')
@@ -43,6 +43,7 @@ def browse():
 
 ## Start program button
 def start():
+	startbutton.config(state='disabled')
 	browsebutton.config(state='disabled')
 	mutebutton.config(state='disabled')
 	mvar = 'Creating wallpaper. Please wait...'
@@ -121,6 +122,7 @@ def start():
 	bkg.show()
 
 	# ~ Resetting GUI ~
+	startbutton.config(state='normal')
 	browsebutton.config(state='normal')
 	mutebutton.config(state='normal')
 
