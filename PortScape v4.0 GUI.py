@@ -1,11 +1,11 @@
 # v4.0 - Creating preview window
 
 
-import os, time, re, mimetypes, math, threading
+import os, time, re, mimetypes, math, threading, tkinter
 from tkinter import *
 from tkinter import filedialog, colorchooser, ttk
 from PIL import Image as i
-from PIL import ImageFilter, ImageOps, ImageDraw
+from PIL import ImageFilter, ImageOps, ImageDraw, ImageTk
 import matplotlib
 from matplotlib import pyplot as plt
 import numpy as np
@@ -16,7 +16,7 @@ master = Tk()
 #master.iconbitmap('tbcarrowicon.ico')
 master.title('PortScape v3.1 GUI')
 master.geometry('1280x470')
-master.resizable(False, False)
+#master.resizable(False, False)
 master.configure(background='#1d1c2c')
 master.columnconfigure(0, weight=2)
 #bkg = PhotoImage(file='bkg.png')
@@ -61,6 +61,7 @@ def start():
 	# print(f'>> New size:   {wid, hei}')
 
 	mode = 'RGBA'
+	global bkg
 	bkg = i.new(mode, (wid, hei)) # Background
 
 	def split(pos): # Splits image in 2 and puts top half on the left and bottom on the right
@@ -134,15 +135,21 @@ def start():
 	print('>> Exporting image...')
 	dt = time.strftime('%Y-%m-%d_%H-%M-%S')
 	path = f'./walls/wallpaper-{dt}.png'
-	bkg.save(path)
-	bkg.show()
+
+	previmg = ImageTk.PhotoImage(image=bkg) # Creating a PhotoImage of image object to load on canvas
+	setprev = preview.create_image(0,0, image=previmg) # Loading photoimage on canvas
+	preview.itemconfig(setprev)
+	tkinter.Tk()
+
+	# bkg.save(path)
+	# bkg.show()
 
 	# ~ Resetting GUI ~
 	startbutton.config(state='normal')
 	browsebutton.config(state='normal')
 	bordbutton.config(state='normal')
 
-	mvar = f'Done. File saved as ./walls/{dt}.png'
+	mvar = f'Done. File saved as ./walls/{dt}.png\n'
 	print(f'>> {mvar}')
 	messvar.set(mvar)
 
@@ -151,13 +158,16 @@ def start():
 
 ### GUI ###
 
-## Subframes
+### Subframes
 leftsubframe = Frame(master, bg='#1d1c2c')
 leftsubframe.grid(row=0, column=0)
+
 rightsubframe = Frame(master, bg='#5a49a4', width=800, height=450)
 rightsubframe.grid(row=0, column=1)
 master.rowconfigure(0, pad=20)
 master.columnconfigure(1, pad=20)
+
+### Left subframe
 
 ## Text
 infolab = Label(leftsubframe, width=58, justify='left', anchor='center', text="Please select a file and click the 'Create!' button", bg='#1d1c2c', fg='#d7ceff')
@@ -355,6 +365,16 @@ messvar.set(mvar)
 
 messlabel = Label(leftsubframe, textvariable=messvar, anchor='center', width=58, bg='#1d1c2c', fg='#d7ceff')
 messlabel.grid(row=8, column=0)
+
+
+
+### Right Subframe
+
+preview = Canvas(rightsubframe, width=800, height=450)
+preview.grid(row=0, column=0)
+pimg = PhotoImage(file='./walls/Big3.png')
+preview.create_image(0, 0, image=pimg)
+
 
 
 master.mainloop()
