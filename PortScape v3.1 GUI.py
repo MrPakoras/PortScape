@@ -14,7 +14,7 @@ print('>> Running...')
 
 master = Tk()
 #master.iconbitmap('tbcarrowicon.ico')
-master.title('PortScape v12.2 GUI')
+master.title('PortScape v3.1 GUI')
 master.geometry('512x288')
 master.resizable(False, False)
 master.configure(background='#1d1c2c')
@@ -132,7 +132,7 @@ def start():
 		pass
 
 	print('>> Exporting image...')
-	dt = time.strftime('%d-%m-%y_%H-%M-%S')
+	dt = time.strftime('%Y-%m-%d_%H-%M-%S')
 	path = f'./walls/wallpaper-{dt}.png'
 	bkg.save(path)
 	bkg.show()
@@ -142,7 +142,7 @@ def start():
 	browsebutton.config(state='normal')
 	bordbutton.config(state='normal')
 
-	mvar = f'Done. File saved as ./walls/wallpaper-{dt}.png'
+	mvar = f'Done. File saved as ./walls/{dt}.png'
 	print(f'>> {mvar}')
 	messvar.set(mvar)
 
