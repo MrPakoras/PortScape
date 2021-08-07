@@ -15,8 +15,8 @@ print('>> Running...')
 master = Tk()
 #master.iconbitmap('tbcarrowicon.ico')
 master.title('PortScape v3.1 GUI')
-master.geometry('1280x470')
-#master.resizable(False, False)
+master.geometry('1280x475')
+master.resizable(False, False)
 master.configure(background='#1d1c2c')
 master.columnconfigure(0, weight=2)
 #bkg = PhotoImage(file='bkg.png')
@@ -79,6 +79,7 @@ def start():
 		pass
 	else:
 		if fopt.get() != 2: # If radio button 3 not chosen
+			print('>> Applying Gaussian Blur...')
 			img = img.filter(ImageFilter.GaussianBlur(radius=blur)) # Gaussian blur
 		
 		if fopt.get() != 1: # If radio button 2 not chosen
@@ -88,6 +89,7 @@ def start():
 	if plbvar.get() == 0: # Matplotlib colour map
 		pass
 	else:
+		print(f'>> Applying {pltvar.get()} colour map...')
 		pltcm = matplotlib.cm.get_cmap(pltvar.get()) # color map
 		img = img.convert('L')
 		img = np.array(img)
@@ -96,6 +98,7 @@ def start():
 		img = i.fromarray(img)
 
 	if icvar.get() == 1: # Invert colours
+		print('>> Inverting image...')
 		img = ImageOps.invert(img)
 
 	def split(pos): # Splits image in 2 and puts top half on the left and bottom on the right
@@ -137,13 +140,16 @@ def start():
 	dt = time.strftime('%Y-%m-%d_%H-%M-%S')
 	path = f'./walls/wallpaper-{dt}.png'
 
-	# previmg = ImageTk.PhotoImage(image=bkg) # Creating a PhotoImage of image object to load on canvas
-	# setprev = preview.create_image(0,0, image=previmg) # Loading photoimage on canvas
+	prevbkg = bkg.resize((800,450)) # Resizing preview image to fit on canvas
+	previmg = ImageTk.PhotoImage(image=prevbkg) # Creating a PhotoImage of image object to load on canvas
+	preview.create_image(0,0, image=previmg, anchor='nw') # Loading photoimage on canvas
+	preview.image = previmg # https://web.archive.org/web/20201111190625id_/http://effbot.org/pyfaq/why-do-my-tkinter-images-not-appear.htm
 	# preview.itemconfig(setprev)
 	# tkinter.Tk()
+	# master.mainloop()
 
-	bkg.save(path)
-	bkg.show()
+	# bkg.save(path)
+	# bkg.show()
 
 	# ~ Resetting GUI ~
 	startbutton.config(state='normal')
@@ -371,11 +377,8 @@ messlabel.grid(row=8, column=0)
 
 ### Right Subframe
 
-preview = Canvas(rightsubframe, width=800, height=450)
+preview = Canvas(rightsubframe, width=800, height=450, bg='#5a49a4')
 preview.grid(row=0, column=0)
-pimg = PhotoImage(file='./walls/Big3.png')
-preview.create_image(0, 0, image=pimg)
-
 
 
 master.mainloop()
