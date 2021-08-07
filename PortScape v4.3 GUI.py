@@ -346,7 +346,7 @@ for x in fo:
 ## Matplotlib Colour Map dropdown
 pltframe = Frame(leftsubframe, width=600, bg='#5a49a4', padx=50, pady=5)
 pltframe.pack_propagate(0)
-pltframe.grid(row=6, column=0)
+pltframe.grid(row=6, column=0, pady=5)
 
 pltvar = StringVar() # matplotlib plot variable
 plttext = Label(pltframe, text='Colour Map', bg='#5a49a4', fg='#d7ceff', activebackground='#5a49a4', activeforeground='#d7ceff') # Dropdown label
@@ -365,13 +365,16 @@ pltdd.state(['disabled','readonly']) # Sets dropdown on non edit mode
 
 ## Preview and Create
 # Threading tutorial: https://www.youtube.com/watch?v=jnrCpA1xJPQ
-pcframe = Frame(leftsubframe, bg='#1d1c2c', padx=50, pady=5) # Preview and Create button frame
+pcframe = Frame(leftsubframe, bg='#1d1c2c', padx=10, pady=20) # Preview and Create button frame
+pcframe.columnconfigure(0, pad=10)
+pcframe.columnconfigure(1, pad=10)
 pcframe.grid(row=7)
 
 previewbutton = Button(pcframe, text='Preview', command=lambda:threading.Thread(target=start).start(), width=20, height=2, bg='#1d1c2c', fg='#8d73ff', activebackground='#1d1c2c' , activeforeground='#8d73ff')
 # leftsubframe.rowconfigure(3, weight=1)
 # pcframe.rowconfigure(0, pad=10)
 previewbutton.grid(row=0, column=0)
+
 previewbutton.config(state='disabled')
 
 startbutton = Button(pcframe, text='Create!', command=lambda:threading.Thread(target=create).start(), width=20, height=2, bg='#1d1c2c', fg='#8d73ff', activebackground='#1d1c2c' , activeforeground='#8d73ff')
