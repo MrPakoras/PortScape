@@ -77,22 +77,9 @@ def start():
 		img = img.convert('L') # Convert to greyscale
 		img = ImageOps.colorize(img, black=cmblack, white=cmwhite) # colour map
 
-	## Gaussian Blur
+	## Matplotlib colour map
 
-	blurval = int(blurslider.get()) # Slider value
-
-	if blurval == 0: # Filter options
-		pass
-	else:
-		print('>> Applying Gaussian Blur...')
-		# blur = hei/()*8
-		img = img.filter(ImageFilter.GaussianBlur(radius=(blurval*0.1))) # Gaussian blur
-		
-	if fopt.get() == 2: # If radio button 2 not chosen
-		# https://stackoverflow.com/questions/43618910/pil-drawing-a-semi-transparent-square-overlay-on-image
-		img = i.eval(img, lambda x: x/2)
-
-	if plbvar.get() == 0: # Matplotlib colour map
+	if plbvar.get() == 0:
 		pass
 	else:
 		print(f'>> Applying {pltvar.get()} colour map...')
@@ -103,11 +90,33 @@ def start():
 		img = np.uint8(img*255)
 		img = i.fromarray(img)
 
-	if icvar.get() == 1: # Invert colours
+	## Invert colours
+
+	if icvar.get() == 1: 
 		print('>> Inverting image...')
 		img = img.convert('RGB')
 		# print(img.mode)
 		img = ImageOps.invert(img)
+
+
+	## Gaussian Blur
+
+	blurval = int(blurslider.get()) # Slider value
+
+	if blurval == 0: # Filter options
+		pass
+	else:
+		print('>> Applying Gaussian Blur...')
+		# blur = hei/()*8
+		img = img.filter(ImageFilter.GaussianBlur(radius=(blurval*0.1))) # Gaussian blur
+	
+	## Darken
+
+	if fopt.get() == 2: # If radio button 2 not chosen
+		# https://stackoverflow.com/questions/43618910/pil-drawing-a-semi-transparent-square-overlay-on-image
+		img = i.eval(img, lambda x: x/1.5)
+
+	## Split image
 
 	def split(pos): # Splits image in 2 and puts top half on the left and bottom on the right
 		imgcent = math.ceil(hei/2) # Image center
