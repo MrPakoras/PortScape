@@ -203,7 +203,7 @@ master.columnconfigure(1, pad=20)
 ### Left subframe
 
 ## Text
-infolab = Label(leftsubframe, width=58, justify='left', anchor='center', text="Please select a file and click the 'Create!' button", bg='#1d1c2c', fg='#d7ceff')
+infolab = Label(leftsubframe, width=58, justify='left', anchor='center', text="PortScape - A Tool to Turn Portrait Images into Landcape Wallpapers", bg='#1d1c2c', fg='#d7ceff')
 leftsubframe.rowconfigure(0, pad=20)
 infolab.grid(row=0)
 
@@ -213,7 +213,7 @@ addrframe.pack_propagate(0)
 addrframe.grid(row=2, column=0)
 
 addrvar = StringVar(addrframe)
-avar = 'Please choose a file'
+avar = 'Please choose a file...'
 addrvar.set(avar)
 
 addrlab = Label(addrframe, textvariable=addrvar, anchor='w', width=40, bg='#1d1c2c', fg='#d7ceff')
@@ -370,7 +370,7 @@ frframe = Frame(leftsubframe, width=448, bg='#d7ceff', padx=5)
 frframe.pack_propagate(0)
 frframe.grid(row=6, column=0)
 
-fo = ['None','Apply to Center', 'Darken Sides', 'Both'] # Filter options
+fo = ['None','Apply to Centre', 'Darken Sides', 'Both'] # Filter options
 fopt = IntVar()
 fopt.set(0)
 
