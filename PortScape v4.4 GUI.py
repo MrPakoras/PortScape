@@ -1,4 +1,4 @@
-# v4.3 - Fixing broken edit options
+# v4.4 - Blur Slider
 
 
 import os, time, re, mimetypes, math, threading, tkinter
@@ -77,16 +77,20 @@ def start():
 		img = img.convert('L') # Convert to greyscale
 		img = ImageOps.colorize(img, black=cmblack, white=cmwhite) # colour map
 
-	if fopt.get() == 0: # Filter options
+	## Gaussian Blur
+
+	blurval = int(blurslider.get()) # Slider value
+
+	if blurval == 0: # Filter options
 		pass
 	else:
-		if fopt.get() != 2: # If radio button 3 not chosen
-			print('>> Applying Gaussian Blur...')
-			img = img.filter(ImageFilter.GaussianBlur(radius=blur)) # Gaussian blur
+		print('>> Applying Gaussian Blur...')
+		# blur = hei/()*8
+		img = img.filter(ImageFilter.GaussianBlur(radius=(blurval*0.1))) # Gaussian blur
 		
-		if fopt.get() != 1: # If radio button 2 not chosen
-			# https://stackoverflow.com/questions/43618910/pil-drawing-a-semi-transparent-square-overlay-on-image
-			img = i.eval(img, lambda x: x/2)
+	if fopt.get() == 2: # If radio button 2 not chosen
+		# https://stackoverflow.com/questions/43618910/pil-drawing-a-semi-transparent-square-overlay-on-image
+		img = i.eval(img, lambda x: x/2)
 
 	if plbvar.get() == 0: # Matplotlib colour map
 		pass
@@ -107,7 +111,7 @@ def start():
 
 	def split(pos): # Splits image in 2 and puts top half on the left and bottom on the right
 		imgcent = math.ceil(hei/2) # Image center
-		blur = hei/200
+		
 		global fopt
 
 		if pos == 't':
@@ -161,12 +165,12 @@ def create():
 	print('>> Exporting image...')
 
 	dt = time.strftime('%Y-%m-%d_%H-%M-%S')
-	path = f'./walls/wallpaper-{dt}.png'
+	path = f'./walls/{dt}.png'
 
 	bkg.save(path)
 	bkg.show()
 
-	mvar = f'Done. File saved as ./walls/{dt}.png\n'
+	mvar = f'Done. File saved as {path}\n'
 	print(f'>> {mvar}')
 	messvar.set(mvar)
 
@@ -241,9 +245,10 @@ cmbutton.config(state='normal')
 ## MPL Colour Map button
 def ploption():
 	if plbvar.get() == 1:
-		pltdd.state(['!disabled','readonly'])
+		pltdd.state(['!disabled','readonly']) # Sets dropdown to non edit mode
+		pltdd.current(72) # Set dropdown default option
 	else:
-		pltdd.state(['disabled','readonly'])
+		pltdd.state(['disabled','readonly']) # Disable dropdown
 
 plbvar = IntVar()
 plbvar.set(0)
@@ -342,24 +347,39 @@ for x in fo:
 	filterrad.grid(row=4, column=n)
 
 
+## Blur slider
+blurframe = Frame(leftsubframe, bg='#d7ceff', padx=5, pady=5)
+blurframe.grid(row=6)
+
+blurlabel = Label(blurframe, text='Blur Amount', bg='#d7ceff', fg='#5a49a4')
+blurlabel.grid(row=0, column=0)
+
+blurslider = Scale(blurframe, from_=0, to=100, orient=HORIZONTAL, length=350, bg='#8d73ff', fg='#1d1c2c')
+blurslider.grid(row=1, column=0)
+
 
 ## Matplotlib Colour Map dropdown
 pltframe = Frame(leftsubframe, width=600, bg='#5a49a4', padx=50, pady=5)
 pltframe.pack_propagate(0)
-pltframe.grid(row=6, column=0, pady=5)
+pltframe.grid(row=7, column=0, pady=5)
 
 pltvar = StringVar() # matplotlib plot variable
-plttext = Label(pltframe, text='Colour Map', bg='#5a49a4', fg='#d7ceff', activebackground='#5a49a4', activeforeground='#d7ceff') # Dropdown label
+plttext = Label(pltframe, text='Colour Map', bg='#5a49a4', fg='#d7ceff', activebackground='#5a49a4', activeforeground='#d7ceff', padx=20) # Dropdown label
 plttext.grid(row=0, column=0)
 
 pltddstyle = ttk.Style() # Style options for dropdown
 pltddstyle.configure('TCombobox', background='#1d1c2c', foreground='#8d73ff')
 
 pltdd = ttk.Combobox(pltframe, width=15, textvariable=pltvar, style='TCombobox')
-pltdd['values'] = ('Accent', 'Accent_r', 'Blues', 'Blues_r', 'BrBG', 'BrBG_r', 'BuGn', 'BuGn_r', 'BuPu', 'BuPu_r', 'CMRmap', 'CMRmap_r', 'Dark2', 'Dark2_r', 'GnBu', 'GnBu_r', 'Greens', 'Greens_r', 'Greys', 'Greys_r', 'OrRd', 'OrRd_r', 'Oranges', 'Oranges_r', 'PRGn', 'PRGn_r', 'Paired', 'Paired_r', 'Pastel1', 'Pastel1_r', 'Pastel2', 'Pastel2_r', 'PiYG', 'PiYG_r', 'PuBu', 'PuBuGn', 'PuBuGn_r', 'PuBu_r', 'PuOr', 'PuOr_r', 'PuRd', 'PuRd_r', 'Purples', 'Purples_r', 'RdBu', 'RdBu_r', 'RdGy', 'RdGy_r', 'RdPu', 'RdPu_r', 'RdYlBu', 'RdYlBu_r', 'RdYlGn', 'RdYlGn_r', 'Reds', 'Reds_r', 'Set1', 'Set1_r', 'Set2', 'Set2_r', 'Set3', 'Set3_r', 'Spectral', 'Spectral_r', 'Wistia', 'Wistia_r', 'YlGn', 'YlGnBu', 'YlGnBu_r', 'YlGn_r', 'YlOrBr', 'YlOrBr_r', 'YlOrRd', 'YlOrRd_r', 'afmhot', 'afmhot_r', 'autumn', 'autumn_r', 'binary', 'binary_r', 'bone', 'bone_r', 'brg', 'brg_r', 'bwr', 'bwr_r', 'cividis', 'cividis_r', 'cool', 'cool_r', 'coolwarm', 'coolwarm_r', 'copper', 'copper_r', 'cubehelix', 'cubehelix_r', 'flag', 'flag_r', 'gist_earth', 'gist_earth_r', 'gist_gray', 'gist_gray_r', 'gist_heat', 'gist_heat_r', 'gist_ncar', 'gist_ncar_r', 'gist_rainbow', 'gist_rainbow_r', 'gist_stern', 'gist_stern_r', 'gist_yarg', 'gist_yarg_r', 'gnuplot', 'gnuplot2', 'gnuplot2_r', 'gnuplot_r', 'gray', 'gray_r', 'hot', 'hot_r', 'hsv', 'hsv_r', 'inferno', 'inferno_r', 'jet', 'jet_r', 'magma', 'magma_r', 'nipy_spectral', 'nipy_spectral_r', 'ocean', 'ocean_r', 'pink', 'pink_r', 'plasma', 'plasma_r', 'prism', 'prism_r', 'rainbow', 'rainbow_r', 'seismic', 'seismic_r', 'spring', 'spring_r', 'summer', 'summer_r', 'tab10', 'tab10_r', 'tab20', 'tab20_r', 'tab20b', 'tab20b_r', 'tab20c', 'tab20c_r', 'terrain', 'terrain_r', 'turbo', 'turbo_r', 'twilight', 'twilight_r', 'twilight_shifted', 'twilight_shifted_r', 'viridis', 'viridis_r', 'winter', 'winter_r')
+pltdd['values'] = ('Accent','Accent_r','afmhot','afmhot_r','autumn','autumn_r','binary','binary_r','Blues','Blues_r','bone','bone_r','BrBG','BrBG_r','brg','brg_r','BuGn','BuGn_r','BuPu','BuPu_r','bwr','bwr_r','cividis','cividis_r','CMRmap','CMRmap_r','cool','coolwarm','coolwarm_r','cool_r','copper','copper_r','cubehelix','cubehelix_r','Dark2','Dark2_r','flag','flag_r','gist_earth','gist_earth_r','gist_gray','gist_gray_r','gist_heat','gist_heat_r','gist_ncar','gist_ncar_r','gist_rainbow','gist_rainbow_r','gist_stern','gist_stern_r','gist_yarg','gist_yarg_r','GnBu','GnBu_r','gnuplot','gnuplot2','gnuplot2_r','gnuplot_r','gray','gray_r','Greens','Greens_r','Greys','Greys_r','hot','hot_r','hsv','hsv_r','inferno','inferno_r','jet','jet_r','magma','magma_r','nipy_spectral','nipy_spectral_r','ocean','ocean_r','Oranges','Oranges_r','OrRd','OrRd_r','Paired','Paired_r','Pastel1','Pastel1_r','Pastel2','Pastel2_r','pink','pink_r','PiYG','PiYG_r','plasma','plasma_r','PRGn','PRGn_r','prism','prism_r','PuBu','PuBuGn','PuBuGn_r','PuBu_r','PuOr','PuOr_r','PuRd','PuRd_r','Purples','Purples_r','rainbow','rainbow_r','RdBu','RdBu_r','RdGy','RdGy_r','RdPu','RdPu_r','RdYlBu','RdYlBu_r','RdYlGn','RdYlGn_r','Reds','Reds_r','seismic','seismic_r','Set1','Set1_r','Set2','Set2_r','Set3','Set3_r','Spectral','Spectral_r','spring','spring_r','summer','summer_r','tab10','tab10_r','tab20','tab20b','tab20b_r','tab20c','tab20c_r','tab20_r','terrain','terrain_r','turbo','turbo_r','twilight','twilight_r','twilight_shifted','twilight_shifted_r','viridis','viridis_r','winter','winter_r','Wistia','Wistia_r','YlGn','YlGnBu','YlGnBu_r','YlGn_r','YlOrBr','YlOrBr_r','YlOrRd','YlOrRd_r')
 pltdd.grid(row=0, column=1)
-pltdd.current()
 pltdd.state(['disabled','readonly']) # Sets dropdown on non edit mode
+
+# Stops highlighting when clicked
+def defocus(event):
+	event.widget.master.focus_set()
+
+pltdd.bind('<FocusIn>', defocus) 
 
 
 
@@ -368,7 +388,7 @@ pltdd.state(['disabled','readonly']) # Sets dropdown on non edit mode
 pcframe = Frame(leftsubframe, bg='#1d1c2c', padx=10, pady=20) # Preview and Create button frame
 pcframe.columnconfigure(0, pad=10)
 pcframe.columnconfigure(1, pad=10)
-pcframe.grid(row=7)
+pcframe.grid(row=8)
 
 previewbutton = Button(pcframe, text='Preview', command=lambda:threading.Thread(target=start).start(), width=20, height=2, bg='#1d1c2c', fg='#8d73ff', activebackground='#1d1c2c' , activeforeground='#8d73ff')
 # leftsubframe.rowconfigure(3, weight=1)
@@ -390,7 +410,7 @@ mvar = ''
 messvar.set(mvar)
 
 messlabel = Label(leftsubframe, textvariable=messvar, anchor='center', width=58, height=2, bg='#1d1c2c', fg='#d7ceff')
-messlabel.grid(row=8, column=0)
+messlabel.grid(row=9, column=0)
 
 
 
@@ -398,6 +418,8 @@ messlabel.grid(row=8, column=0)
 
 preview = Canvas(rightsubframe, width=800, height=450, bg='#5a49a4')
 preview.grid(row=0, column=0)
+# pimg = PhotoImage(file='pimg.jpeg')
+# preview.create_image(0, 0, image=pimg)
 
 
 master.mainloop()
