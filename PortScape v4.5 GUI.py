@@ -1,4 +1,4 @@
-# v4.4 - Blur Slider
+# v4.5 - Colourise/Map center too
 
 
 import os, time, re, mimetypes, math, threading, tkinter
@@ -14,7 +14,7 @@ print('>> Running...')
 
 master = Tk()
 #master.iconbitmap('tbcarrowicon.ico')
-master.title('PortScape v4.3 GUI')
+master.title('PortScape v4.5 GUI')
 master.geometry('1280x475')
 master.resizable(False, False)
 master.configure(background='#1d1c2c')
@@ -112,8 +112,9 @@ def start():
 	
 	## Darken
 
-	if fopt.get() == 2: # If radio button 2 not chosen
+	if fopt.get() == 2 or fopt.get() == 3: # If radio button 2 not chosen
 		# https://stackoverflow.com/questions/43618910/pil-drawing-a-semi-transparent-square-overlay-on-image
+		ndimg = img # Non darkened image to paste on top
 		img = i.eval(img, lambda x: x/1.5)
 
 	## Split image
@@ -145,7 +146,10 @@ def start():
 	bkg.paste(split('t'), box=tspos)
 	bkg.paste(split('b'), box=bspos)
 
-	bkg.paste(origimg, box=(math.ceil((wid/2)-(img.size[0]/2)), 0)) # Paste original image in the center of new image
+	if fopt.get() == 1 or fopt.get() == 3: # If radiobutton 2 or 4 are chosen
+		bkg.paste(ndimg, box=(math.ceil((wid/2)-(img.size[0]/2)), 0)) # Paste edited image in the center of new image
+	else:
+		bkg.paste(origimg, box=(math.ceil((wid/2)-(img.size[0]/2)), 0)) # Paste original image in the center of new image
 	
 	# Add border
 	if bordvar.get() == 1:
@@ -184,6 +188,7 @@ def create():
 	messvar.set(mvar)
 
 
+
 ### GUI ###
 
 ### Subframes
@@ -219,7 +224,6 @@ browsebutton.config(state='normal')
 browsebutton.grid(row=0, column=1, pady=4)
 
 
-
 ## border, colour map, invert colours check buttons.
 checkframe = Frame(leftsubframe, width=448, bg='#1d1c2c')
 checkframe.pack_propagate(0)
@@ -244,14 +248,13 @@ def cmoption(): # When CM button is clicked
 		cmbcolour.configure(background='#1d1c2c')
 		cmwcolour.configure(background='#1d1c2c')
 
-
 cmvar = IntVar()
 cmvar.set(0)
 cmbutton = Checkbutton(checkframe, text='Colourise', variable=cmvar, command=cmoption, bg='#1d1c2c', fg='#8d73ff', activebackground='#1d1c2c' , activeforeground='#8d73ff')
 cmbutton.grid(row=0, column=1)
 cmbutton.config(state='normal')
 
-## MPL Colour Map button
+# MPL Colour Map button
 def ploption():
 	if plbvar.get() == 1:
 		pltdd.state(['!disabled','readonly']) # Sets dropdown to non edit mode
@@ -266,7 +269,7 @@ plbutton = Checkbutton(checkframe, text='Colour Map', variable=plbvar, command=p
 
 plbutton.grid(row=0, column=2)
 
-## Invert colours
+# Invert colours button
 icvar = IntVar()
 icvar.set(0)
 
@@ -275,7 +278,7 @@ icbutton = Checkbutton(checkframe, text='Invert Colours', variable=icvar, bg='#1
 icbutton.grid(row=0, column=3)
 
 
-## Colour Map
+## Colouriser
 cmframe = Frame(leftsubframe, width=448, bg='#1d1c2c')
 cmframe.pack_propagate(0)
 cmframe.grid(row=4, column=0)
@@ -321,14 +324,11 @@ invvar = IntVar()
 invvar.set(0)
 invbutton = Checkbutton(cmframe, text='Invert Values', variable=invvar, bg='#1d1c2c', fg='#8d73ff', activebackground='#1d1c2c' , activeforeground='#8d73ff') # Invert white and black
 
-
-
 cmb.config(state='disabled')
 cmw.config(state='disabled')
 invbutton.config(state='disabled')
 cmbcolour.config(state='disabled')
 cmwcolour.config(state='disabled')
-
 
 cmblab.grid(row=0, column=0)
 cmbcolour.grid(row=0, column=1)
@@ -340,37 +340,10 @@ invbutton.grid(row=0, column=6)
 # cmframe.columnconfigure(5, pad=20)
 
 
-
-## Filer options radio button
-frframe = Frame(leftsubframe, width=448, bg='#d7ceff')
-frframe.pack_propagate(0)
-frframe.grid(row=5, column=0)
-
-fo = ['None','Gaussian Blur', 'Darken', 'Blur & Darken'] # Filter options
-fopt = IntVar()
-fopt.set(0)
-
-for x in fo:
-	n = fo.index(x)
-	filterrad = Radiobutton(frframe, text=x, value=n, variable=fopt, bg='#d7ceff', fg='#5a49a4', activebackground='#d7ceff' , activeforeground='#5a49a4')
-	filterrad.grid(row=4, column=n)
-
-
-## Blur slider
-blurframe = Frame(leftsubframe, bg='#d7ceff', padx=5, pady=5)
-blurframe.grid(row=6)
-
-blurlabel = Label(blurframe, text='Blur Amount', bg='#d7ceff', fg='#5a49a4')
-blurlabel.grid(row=0, column=0)
-
-blurslider = Scale(blurframe, from_=0, to=100, orient=HORIZONTAL, length=350, bg='#8d73ff', fg='#1d1c2c')
-blurslider.grid(row=1, column=0)
-
-
 ## Matplotlib Colour Map dropdown
 pltframe = Frame(leftsubframe, width=600, bg='#5a49a4', padx=50, pady=5)
 pltframe.pack_propagate(0)
-pltframe.grid(row=7, column=0, pady=5)
+pltframe.grid(row=5, column=0, pady=5)
 
 pltvar = StringVar() # matplotlib plot variable
 plttext = Label(pltframe, text='Colour Map', bg='#5a49a4', fg='#d7ceff', activebackground='#5a49a4', activeforeground='#d7ceff', padx=20) # Dropdown label
@@ -389,6 +362,33 @@ def defocus(event):
 	event.widget.master.focus_set()
 
 pltdd.bind('<FocusIn>', defocus) 
+
+
+
+## Filer options radio button
+frframe = Frame(leftsubframe, width=448, bg='#d7ceff', padx=5)
+frframe.pack_propagate(0)
+frframe.grid(row=6, column=0)
+
+fo = ['None','Apply to Center', 'Darken Sides', 'Both'] # Filter options
+fopt = IntVar()
+fopt.set(0)
+
+for x in fo:
+	n = fo.index(x)
+	filterrad = Radiobutton(frframe, text=x, value=n, variable=fopt, bg='#d7ceff', fg='#5a49a4', activebackground='#d7ceff' , activeforeground='#5a49a4')
+	filterrad.grid(row=4, column=n)
+
+
+## Blur slider
+blurframe = Frame(leftsubframe, bg='#d7ceff', padx=5, pady=5)
+blurframe.grid(row=7, pady=5)
+
+blurlabel = Label(blurframe, text='Blur Amount', bg='#d7ceff', fg='#5a49a4')
+blurlabel.grid(row=0, column=0)
+
+blurslider = Scale(blurframe, from_=0, to=100, orient=HORIZONTAL, length=350, bg='#8d73ff', fg='#1d1c2c')
+blurslider.grid(row=1, column=0)
 
 
 
