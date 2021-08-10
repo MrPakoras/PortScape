@@ -158,7 +158,7 @@ def start():
 	if obvar.get() == 1:
 		# bkg = ImageOps.expand(bkg,border=wid//100,fill='black')
 		obdraw = ImageDraw.Draw(bkg)
-		bordthick = wid//100
+		bordthick = 40 # Thickness of border
 		obdraw.line((0, 0, bkg.size[0], 0), width=bordthick, fill='black') # Top line
 		obdraw.line((0, bkg.size[1], bkg.size[0], bkg.size[1]), width=bordthick, fill='black') # Bottom line
 		obdraw.line((0, 0, 0, bkg.size[1]), width=bordthick, fill='black') # Left line
