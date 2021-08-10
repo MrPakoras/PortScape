@@ -156,13 +156,25 @@ def start():
 
 	# Add outer border
 	if obvar.get() == 1:
-		bkg = ImageOps.expand(bkg,border=wid//100,fill='black')
+		# bkg = ImageOps.expand(bkg,border=wid//100,fill='black')
+		obdraw = ImageDraw.Draw(bkg)
+		bordthick = wid//100
+		obdraw.line((0, 0, bkg.size[0], 0), width=bordthick, fill='black') # Top line
+		obdraw.line((0, bkg.size[1], bkg.size[0], bkg.size[1]), width=bordthick, fill='black') # Bottom line
+		obdraw.line((0, 0, 0, bkg.size[1]), width=bordthick, fill='black') # Left line
+		obdraw.line((bkg.size[0], 0, bkg.size[0], bkg.size[1]), width=bordthick, fill='black') # Right line
 	elif obvar.get() == 0:
 		pass
 
 	# Seperation borders
 	if sepbvar.get() == 1:
-		pass
+		print(sepbddvar.get())
+		if sepbddvar.get() == 'Normal':
+			rectbord = ImageDraw.Draw(bkg)
+			blc = (bkg.size[0]/2) - (origimg.size[0]/2) # Border left coordinate
+			brc = (bkg.size[0]/2) + (origimg.size[0]/2) # Border left coordinate
+			rectbord.line((blc, 0, blc, img.size[1]), width=20, fill='black') # Paste rectangle on either edge of central image
+			rectbord.line((brc, 0, brc, img.size[1]), width=20, fill='black')
 	else:
 		pass
 
