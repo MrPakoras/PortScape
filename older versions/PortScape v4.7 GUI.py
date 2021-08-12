@@ -252,7 +252,7 @@ browsebutton.config(state='normal')
 browsebutton.grid(row=0, column=1, pady=4)
 
 
-## border, colour map, invert colours check buttons.
+## colourise, colour map, invert colours check buttons.
 checkframe = Frame(leftsubframe, width=448, bg='#1d1c2c')
 # checkframe.pack_propagate(0)
 checkframe.grid(row=3, column=0)
@@ -260,16 +260,25 @@ checkframe.grid(row=3, column=0)
 def cmoption(): # When CM button is clicked
 	if cmvar.get() == 1:
 		cmb.config(state='normal')
-		cmw.config(state='normal')
-		invbutton.config(state='normal')
+		cmw.config(state='normal')		
 		cmbcolour.configure(background=cmbvar.get())
 		cmwcolour.configure(background=cmwvar.get())
+		invbutton.config(state='normal') # Invert values button
+
+	if cmvar.get() == 1 or plbvar.get() == 1:
+		atcb.config(state='normal') # Apply to Centre button
+		bothb.config(state='normal') # Both button
+
 	else:
 		cmb.config(state='disabled')
-		cmw.config(state='disabled')
-		invbutton.config(state='disabled')
+		cmw.config(state='disabled')		
 		cmbcolour.configure(background='#1d1c2c')
 		cmwcolour.configure(background='#1d1c2c')
+		invbutton.config(state='disabled')
+
+		atcb.config(state='disabled')
+		bothb.config(state='disabled')
+
 
 cmvar = IntVar()
 cmvar.set(0)
@@ -282,8 +291,16 @@ def ploption():
 	if plbvar.get() == 1:
 		pltdd.state(['!disabled','readonly']) # Sets dropdown to non edit mode
 		pltdd.current(72) # Set dropdown default option
+
+	if cmvar.get() == 1 or plbvar.get() == 1:
+		atcb.config(state='normal') # Apply to Centre button
+		bothb.config(state='normal') # Both button
+		
 	else:
 		pltdd.state(['disabled','readonly']) # Disable dropdown
+
+		atcb.config(state='disabled')
+		bothb.config(state='disabled')
 
 plbvar = IntVar()
 plbvar.set(0)
@@ -410,16 +427,12 @@ def radiob(t, n):
 	return r
 
 noneb = radiob('None', 0) # None button
-# noneb.grid(row=0, column=0)
-
 atcb = radiob('Apply to Centre', 1) # Apply to centre button
-# atcb.grid(row=0, column=1)
-
 dsb = radiob('Darken Sides', 2) # Darken Sides button
-# dsb.grid(row=0, column=2)
-
 bothb = radiob('Both', 3) # Both button
-# bothb.grid(row=0, column=3)
+
+atcb.config(state='disabled')
+bothb.config(state='disabled')
 
 
 ## Border options
