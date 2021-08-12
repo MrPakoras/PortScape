@@ -114,6 +114,7 @@ def start():
 
 	if fopt.get() == 2 or fopt.get() == 3: # If radio button 2 not chosen
 		# https://stackoverflow.com/questions/43618910/pil-drawing-a-semi-transparent-square-overlay-on-image
+		global ndimg
 		ndimg = img # Non darkened image to paste on top
 		img = i.eval(img, lambda x: x/1.5)
 
@@ -155,6 +156,8 @@ def start():
 	## Borders
 
 	# Add outer border
+	# bordlayer = i.new('RGBA', (bkg.size[0], bkg.size[1]), (255,255,255,255)) # New layer for border to be added to which can then be edited and pasted on bkg
+
 	if obvar.get() == 1:
 		# bkg = ImageOps.expand(bkg,border=wid//100,fill='black')
 		obdraw = ImageDraw.Draw(bkg)
@@ -177,6 +180,10 @@ def start():
 			rectbord.line((brc, 0, brc, img.size[1]), width=20, fill='black')
 	else:
 		pass
+
+	# bkg.paste(bordlayer, (0, 0))
+	# bordlayer.save('./bord.png')
+
 
 	prevbkg = bkg.resize((800,450)) # Resizing preview image to fit on canvas
 	previmg = ImageTk.PhotoImage(image=prevbkg) # Creating a PhotoImage of image object to load on canvas
