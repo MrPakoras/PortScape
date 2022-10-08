@@ -1,9 +1,10 @@
-# v5.0.2 - Changed file explorer to open last opened folder so you can edit multiple pics without going to the dir each time
+version = 'v5.0.3' # Kinda fixed PIL.UnidentifiedImageError
 
 
 import os, time, re, mimetypes, math, threading, tkinter
 from tkinter import *
 from tkinter import filedialog, colorchooser, ttk
+import PIL
 from PIL import Image as i
 from PIL import ImageFilter, ImageOps, ImageDraw, ImageTk
 import matplotlib
@@ -14,7 +15,7 @@ print('>> Running...')
 
 master = Tk()
 #master.iconbitmap('tbcarrowicon.ico')
-master.title('PortScape v4.7 GUI')
+master.title(f'PortScape {version} GUI')
 master.geometry('1280x475')
 master.resizable(False, False)
 master.configure(background='#1d1c2c')
@@ -59,7 +60,13 @@ def start():
 
 	### CODE ###
 	print('>> Opening image...')
-	img = i.open(filename)
+	try:
+		img = i.open(filename)
+	except PIL.UnidentifiedImageError:
+		mvar = 'Error. Cannot identify image file. Please choose another image.'
+		messvar.set(mvar)
+		browse()
+
 	origimg = img # Original image to be used later
 	wid, hei = math.ceil(img.size[1]*(16/9)), img.size[1] # Working out 16:9 width for original height
 
