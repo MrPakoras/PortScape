@@ -1,4 +1,4 @@
-# v5.0.1 - Changed Icon and added default image
+# v5.0.2 - Changed file explorer to open last opened folder so you can edit multiple pics without going to the dir each time
 
 
 import os, time, re, mimetypes, math, threading, tkinter
@@ -26,9 +26,10 @@ master.iconphoto(False, icon)
 #setb.place(x=0, y=0, relwidth=1, relheight=1)
 
 ## Browse for file function
+filename = '/'
 def browse():
 	global filename
-	filename = filedialog.askopenfilename(initialdir = "/", title = "Select a File")
+	filename = filedialog.askopenfilename(initialdir = filename, title = "Select a File")
 
 	if len(filename) != 0:
 		if len(filename) >= 45:
