@@ -1,4 +1,4 @@
-version = 'v5.0.3' # Kinda fixed PIL.UnidentifiedImageError
+version = 'v6.0' # Improved GUI
 
 
 import os, time, re, mimetypes, math, threading, tkinter
@@ -220,6 +220,9 @@ def start():
 	startbutton.config(state='normal')
 	previewbutton.config(state='normal')
 	browsebutton.config(state='normal')
+
+	mvar = 'Done.'
+	messvar.set(mvar)
 
 
 ## Create Button function
