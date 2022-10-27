@@ -11,6 +11,8 @@ import matplotlib
 from matplotlib import pyplot as plt
 import numpy as np
 
+directory = input('>> Please enter directory path:   ')
+
 options = ['magma', 'magma_r']
 
 def create(file, opt):
@@ -25,14 +27,14 @@ def create(file, opt):
 
 		dt = time.strftime('%Y-%m-%d_%H-%M-%S')
 		global root, fext
-		path = f'{root}PSLMOd/{fname.replace(fext,"")}-{options[opt]}.png'
+		path = f'{root}/PSLMOd/{fname.replace(fext,"")}-{options[opt]}.png'
 
 		img.save(path)
 
 	except PIL.UnidentifiedImageError:
 		pass
 
-newdir = './PSLMOd/'
+newdir = f'{directory}/PSLMOd/'
 try:
 	os.mkdir(newdir)
 except FileExistsError:
@@ -40,7 +42,7 @@ except FileExistsError:
 
 exclude = set(['PSLMOd'])
 
-for root, dirs, files in os.walk('./', topdown=True):
+for root, dirs, files in os.walk(directory, topdown=True):
 	dirs[:] = [d for d in dirs if d not in exclude] # Edits dirs list to remove new dir for created images so that program doesnt walk that too
 	for fname in files:
 		file = f'{root}/{fname}'

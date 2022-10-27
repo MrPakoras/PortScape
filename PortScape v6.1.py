@@ -1,4 +1,4 @@
-version = 'v6.0' # Improved GUI
+version = 'v6.1' # Cleaned up code, added CM switch button
 
 
 import os, time, re, mimetypes, math, threading, tkinter
@@ -52,6 +52,7 @@ def browse():
 
 ## Preview button program
 def start():
+	global img
 	startbutton.config(state='disabled')
 	previewbutton.config(state='disabled')
 	browsebutton.config(state='disabled')
@@ -89,38 +90,39 @@ def start():
 
 	## Matplotlib colour map
 
-	if plbvar.get() == 0:
+	print(f'\n\n\n\n{cmswvar.get()}')
+	
+	if cmswvar.get() == 0:
+		cmcentreopt = pltvar.get()
+		cmsidesopt = pltvar2.get()
+	if cmswvar.get() == 1:
+		cmcentreopt = pltvar2.get()
+		cmsidesopt = pltvar.get()
+
+	if cmcentreopt == 'None':
 		pass
 	else:
-		print(f'>> Applying {pltvar.get()} colour map...')
-		pltcm = matplotlib.cm.get_cmap(pltvar.get()) # color map
-		img = img.convert('L')
-		img = np.array(img)
-		img = pltcm(img)
-		img = np.uint8(img*255)
-		img = i.fromarray(img)
+		cmcommand(cmcentreopt)
+		centreimg = cmimg # colour mapped centre image to be pasted on top later
+
+	if cmsidesopt == 'None':
+		pass
+	else:
+		cmcommand(cmsidesopt) # Colour map sides
+		img = cmimg
+
 
 	## Invert colours
-
 	if icvar.get() == 1: 
 		print('>> Inverting image...')
 		img = img.convert('RGB')
 		# print(img.mode)
 		img = ImageOps.invert(img)
 
-	
-	## Darken
-	global ndimg
-	ndimg = img # Non darkened image to paste on top	
-
-	if fopt.get() == 2 or fopt.get() == 3: # If radio button 2 not chosen
-		# https://stackoverflow.com/questions/43618910/pil-drawing-a-semi-transparent-square-overlay-on-image
-		img = i.eval(img, lambda x: x/1.5)
-
-
 
 	## Blur Options
 	blurval = int(blurslider.get()) # Slider value
+
 	
 	if bluropt.get() == 0: # Gaussian blur
 		if blurval == 0: # Filter options
@@ -139,6 +141,12 @@ def start():
 
 		imgpix = img.resize((pixw, pixh), resample=i.BILINEAR)
 		img = imgpix.resize(img.size, i.NEAREST)
+
+	if bluropt.get() == 2: # Darken
+		# https://stackoverflow.com/questions/43618910/pil-drawing-a-semi-transparent-square-overlay-on-image
+		img = i.eval(img, lambda x: x*((blurval/50)+0))
+
+
 
 
 	## Split image
@@ -170,10 +178,10 @@ def start():
 	bkg.paste(split('t'), box=tspos)
 	bkg.paste(split('b'), box=bspos)
 
-	if fopt.get() == 1 or fopt.get() == 3: # If radiobutton 2 or 4 are chosen
-		bkg.paste(ndimg, box=(math.ceil((wid/2)-(img.size[0]/2)), 0)) # Paste edited image in the center of new image
-	else:
+	if cmcentreopt == 'None': # If centre colour map == 'None'
 		bkg.paste(origimg, box=(math.ceil((wid/2)-(img.size[0]/2)), 0)) # Paste original image in the center of new image
+	else:
+		bkg.paste(centreimg, box=(math.ceil((wid/2)-(img.size[0]/2)), 0)) # Paste edited image in the center of new image
 	
 
 	## Borders
@@ -235,13 +243,37 @@ def create():
 	path = f'./walls/{dt}.png'
 
 	bkg.save(path)
-	bkg.show()
+	# bkg.show()
 
 	mvar = f'Done. File saved as {path}\n'
 	print(f'>> {mvar}')
 	messvar.set(mvar)
 
+def cmcommand(option):
+	global img, cmimg
+	print(f'>> Applying {option} colour map...')
+	pltcm = matplotlib.cm.get_cmap(option) # color map
+	cmimg = img.convert('L')
+	cmimg = np.array(cmimg)
+	cmimg = pltcm(cmimg)
+	cmimg = np.uint8(cmimg*255)
+	cmimg = i.fromarray(cmimg)
+	return cmimg
 
+def blurcommand(n): # Command to set the scale values
+	global bsstart, bsend, bluropt
+	bsstart, bsend = IntVar(blurframe), IntVar(blurframe)
+	print(bluropt.get())
+
+	if bluropt.get() == 2:
+		bssvar, bsevar = '-100', '100'
+		bsstart.set(bssvar)
+		bsend.set(bsevar)
+
+	else:
+		bssvar, bsevar = '0', '100'
+		bsstart.set(bssvar)
+		bsend.set(bsevar)
 
 ### GUI ###
 
@@ -291,7 +323,7 @@ def cmoption(): # When CM button is clicked
 		cmwcolour.configure(background=cmwvar.get())
 		invbutton.config(state='normal') # Invert values button
 
-	if cmvar.get() == 1 or plbvar.get() == 1:
+	if cmvar.get() == 1:# or plbvar.get() == 1:
 		atcb.config(state='normal') # Apply to Centre button
 		bothb.config(state='normal') # Both button
 
@@ -312,28 +344,6 @@ cmbutton = Checkbutton(checkframe, text='Colourise', variable=cmvar, command=cmo
 cmbutton.grid(row=0, column=1)
 cmbutton.config(state='normal')
 
-# MPL Colour Map button
-def ploption():
-	if plbvar.get() == 1:
-		pltdd.state(['!disabled','readonly']) # Sets dropdown to non edit mode
-		pltdd.current(72) # Set dropdown default option
-
-	if cmvar.get() == 1 or plbvar.get() == 1:
-		atcb.config(state='normal') # Apply to Centre button
-		bothb.config(state='normal') # Both button
-		
-	else:
-		pltdd.state(['disabled','readonly']) # Disable dropdown
-
-		atcb.config(state='disabled')
-		bothb.config(state='disabled')
-
-plbvar = IntVar()
-plbvar.set(0)
-
-plbutton = Checkbutton(checkframe, text='Colour Map', variable=plbvar, command=ploption, bg='#1d1c2c', fg='#8d73ff', activebackground='#1d1c2c' , activeforeground='#8d73ff') # plot button
-
-plbutton.grid(row=0, column=2)
 
 # Invert colours button
 icvar = IntVar()
@@ -407,27 +417,51 @@ invbutton.grid(row=0, column=6)
 
 
 ## Matplotlib Colour Map dropdown
-pltframe = Frame(leftsubframe, width=600, bg='#5a49a4', padx=50, pady=5)
+pltframe = Frame(leftsubframe, width=600, bg='#5a49a4', padx=5, pady=5)
 pltframe.pack_propagate(0)
 pltframe.grid(row=5, column=0)
-
-pltvar = StringVar() # matplotlib plot variable
-plttext = Label(pltframe, text='Colour Map', bg='#5a49a4', fg='#d7ceff', activebackground='#5a49a4', activeforeground='#d7ceff', padx=20) # Dropdown label
-plttext.grid(row=0, column=0)
 
 pltddstyle = ttk.Style() # Style options for dropdown
 pltddstyle.configure('TCombobox', background='#1d1c2c', foreground='#000')
 
+pltddvals = ('None','Accent','Accent_r','afmhot','afmhot_r','autumn','autumn_r','binary','binary_r','Blues','Blues_r','bone','bone_r','BrBG','BrBG_r','brg','brg_r','BuGn','BuGn_r','BuPu','BuPu_r','bwr','bwr_r','cividis','cividis_r','CMRmap','CMRmap_r','cool','coolwarm','coolwarm_r','cool_r','copper','copper_r','cubehelix','cubehelix_r','Dark2','Dark2_r','flag','flag_r','gist_earth','gist_earth_r','gist_gray','gist_gray_r','gist_heat','gist_heat_r','gist_ncar','gist_ncar_r','gist_rainbow','gist_rainbow_r','gist_stern','gist_stern_r','gist_yarg','gist_yarg_r','GnBu','GnBu_r','gnuplot','gnuplot2','gnuplot2_r','gnuplot_r','gray','gray_r','Greens','Greens_r','Greys','Greys_r','hot','hot_r','hsv','hsv_r','inferno','inferno_r','jet','jet_r','magma','magma_r','nipy_spectral','nipy_spectral_r','ocean','ocean_r','Oranges','Oranges_r','OrRd','OrRd_r','Paired','Paired_r','Pastel1','Pastel1_r','Pastel2','Pastel2_r','pink','pink_r','PiYG','PiYG_r','plasma','plasma_r','PRGn','PRGn_r','prism','prism_r','PuBu','PuBuGn','PuBuGn_r','PuBu_r','PuOr','PuOr_r','PuRd','PuRd_r','Purples','Purples_r','rainbow','rainbow_r','RdBu','RdBu_r','RdGy','RdGy_r','RdPu','RdPu_r','RdYlBu','RdYlBu_r','RdYlGn','RdYlGn_r','Reds','Reds_r','seismic','seismic_r','Set1','Set1_r','Set2','Set2_r','Set3','Set3_r','Spectral','Spectral_r','spring','spring_r','summer','summer_r','tab10','tab10_r','tab20','tab20b','tab20b_r','tab20c','tab20c_r','tab20_r','terrain','terrain_r','turbo','turbo_r','twilight','twilight_r','twilight_shifted','twilight_shifted_r','viridis','viridis_r','winter','winter_r','Wistia','Wistia_r','YlGn','YlGnBu','YlGnBu_r','YlGn_r','YlOrBr','YlOrBr_r','YlOrRd','YlOrRd_r')
+
+
+# Centre Options
+pltvar = StringVar() # matplotlib plot variable
+plttext = Label(pltframe, text='Centre', bg='#5a49a4', fg='#d7ceff', activebackground='#5a49a4', activeforeground='#d7ceff') # Dropdown label
+plttext.grid(row=0, column=0)
+
 pltdd = ttk.Combobox(pltframe, width=15, textvariable=pltvar, style='TCombobox')
-pltdd['values'] = ('Accent','Accent_r','afmhot','afmhot_r','autumn','autumn_r','binary','binary_r','Blues','Blues_r','bone','bone_r','BrBG','BrBG_r','brg','brg_r','BuGn','BuGn_r','BuPu','BuPu_r','bwr','bwr_r','cividis','cividis_r','CMRmap','CMRmap_r','cool','coolwarm','coolwarm_r','cool_r','copper','copper_r','cubehelix','cubehelix_r','Dark2','Dark2_r','flag','flag_r','gist_earth','gist_earth_r','gist_gray','gist_gray_r','gist_heat','gist_heat_r','gist_ncar','gist_ncar_r','gist_rainbow','gist_rainbow_r','gist_stern','gist_stern_r','gist_yarg','gist_yarg_r','GnBu','GnBu_r','gnuplot','gnuplot2','gnuplot2_r','gnuplot_r','gray','gray_r','Greens','Greens_r','Greys','Greys_r','hot','hot_r','hsv','hsv_r','inferno','inferno_r','jet','jet_r','magma','magma_r','nipy_spectral','nipy_spectral_r','ocean','ocean_r','Oranges','Oranges_r','OrRd','OrRd_r','Paired','Paired_r','Pastel1','Pastel1_r','Pastel2','Pastel2_r','pink','pink_r','PiYG','PiYG_r','plasma','plasma_r','PRGn','PRGn_r','prism','prism_r','PuBu','PuBuGn','PuBuGn_r','PuBu_r','PuOr','PuOr_r','PuRd','PuRd_r','Purples','Purples_r','rainbow','rainbow_r','RdBu','RdBu_r','RdGy','RdGy_r','RdPu','RdPu_r','RdYlBu','RdYlBu_r','RdYlGn','RdYlGn_r','Reds','Reds_r','seismic','seismic_r','Set1','Set1_r','Set2','Set2_r','Set3','Set3_r','Spectral','Spectral_r','spring','spring_r','summer','summer_r','tab10','tab10_r','tab20','tab20b','tab20b_r','tab20c','tab20c_r','tab20_r','terrain','terrain_r','turbo','turbo_r','twilight','twilight_r','twilight_shifted','twilight_shifted_r','viridis','viridis_r','winter','winter_r','Wistia','Wistia_r','YlGn','YlGnBu','YlGnBu_r','YlGn_r','YlOrBr','YlOrBr_r','YlOrRd','YlOrRd_r')
+pltdd['values'] = pltddvals
 pltdd.grid(row=0, column=1)
-pltdd.state(['disabled','readonly']) # Sets dropdown on non edit mode
+pltdd.state(['!disabled','readonly']) # Sets dropdown on non edit mode
+pltdd.current(0) # Set dropdown default option
+
+# Side Options
+pltvar2 = StringVar() # matplotlib plot variable
+plttext2 = Label(pltframe, text='Sides', bg='#5a49a4', fg='#d7ceff', activebackground='#5a49a4', activeforeground='#d7ceff') # Dropdown label
+plttext2.grid(row=0, column=2)
+
+pltdd2 = ttk.Combobox(pltframe, width=15, textvariable=pltvar2, style='TCombobox')
+pltdd2['values'] = pltddvals
+pltdd2.grid(row=0, column=3)
+pltdd2.state(['!disabled','readonly']) # Sets dropdown on non edit mode
+pltdd2.current(0) # Set dropdown default option
+
 
 # Stops highlighting when clicked
 def defocus(event):
 	event.widget.master.focus_set()
 
-pltdd.bind('<FocusIn>', defocus) 
+pltdd.bind('<FocusIn>', defocus)
+pltdd2.bind('<FocusIn>', defocus)
+
+# Switch options button
+cmswvar = IntVar()
+cmswvar.set(0)
+cmswbutton = Checkbutton(pltframe, text='Switch', variable=cmswvar, bg='#5a49a4', fg='#1d1c2c', activebackground='#5a49a4' , activeforeground='#1d1c2c')
+cmswbutton.grid(row=0, column=4)
 
 
 
@@ -438,13 +472,6 @@ frframe.grid(row=6, column=0, pady=5)
 
 fopt = IntVar()
 fopt.set(0)
-
-# fo = ['None','Apply to Centre', 'Darken Sides', 'Both'] # Filter options
-
-# for x in fo:
-# 	n = fo.index(x)
-# 	filterrad = Radiobutton(frframe, text=x, value=n, variable=fopt, bg='#d7ceff', fg='#5a49a4', activebackground='#d7ceff' , activeforeground='#5a49a4')
-# 	filterrad.grid(row=4, column=n)
 
 def radiob(t, n):
 	r = Radiobutton(frframe, text=t, value=n, variable=fopt, bg='#d7ceff', fg='#5a49a4', activebackground='#d7ceff' , activeforeground='#5a49a4')
@@ -512,16 +539,19 @@ brbframe.grid(row=0)
 bluropt = IntVar()
 bluropt.set(0)
 
-gbrb = Radiobutton(brbframe, text='Gaussian Blur', value=0, variable=bluropt, bg='#d7ceff', fg='#5a49a4', activebackground='#d7ceff' , activeforeground='#5a49a4') # Gaussian blur radio button
+gbrb = Radiobutton(brbframe, text='Gaussian Blur', value=0, variable=bluropt, command=blurcommand(0), bg='#d7ceff', fg='#5a49a4', activebackground='#d7ceff' , activeforeground='#5a49a4') # Gaussian blur radio button
 gbrb.grid(row=0, column=0)
 
-pixrb = Radiobutton(brbframe, text='Pixellate', value=1, variable=bluropt, bg='#d7ceff', fg='#5a49a4', activebackground='#d7ceff' , activeforeground='#5a49a4') # Pixellate radio button
+pixrb = Radiobutton(brbframe, text='Pixellate', value=1, variable=bluropt, command=blurcommand(1), bg='#d7ceff', fg='#5a49a4', activebackground='#d7ceff' , activeforeground='#5a49a4') # Pixellate radio button
 pixrb.grid(row=0, column=1)
+
+darkrb = Radiobutton(brbframe, text='Darken', value=2, variable=bluropt, command=blurcommand(2), bg='#d7ceff', fg='#5a49a4', activebackground='#d7ceff' , activeforeground='#5a49a4') # Darken radio button
+darkrb.grid(row=0, column=2)
 
 # blurlabel = Label(blurframe, text='Blur Amount', bg='#d7ceff', fg='#5a49a4')
 # blurlabel.grid(row=0, column=0)
-
-blurslider = Scale(blurframe, from_=0, to=100, orient=HORIZONTAL, length=350, bg='#8d73ff', fg='#1d1c2c')
+global bsstart, bsend
+blurslider = Scale(blurframe, from_=bsstart.get(), to=bsend.get(), orient=HORIZONTAL, length=350, bg='#8d73ff', fg='#1d1c2c')
 blurslider.grid(row=1, column=0)
 
 
