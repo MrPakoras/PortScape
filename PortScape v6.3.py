@@ -1,7 +1,7 @@
 version = 'v6.2' # Editing centre image seperately to side images
 
 
-import os, time, re, mimetypes, math, threading, tkinter
+import os, time, re, mimetypes, math, threading, tkinter, functools
 from tkinter import *
 from tkinter import filedialog, colorchooser, ttk
 import PIL
@@ -17,7 +17,7 @@ master = Tk()
 #master.iconbitmap('tbcarrowicon.ico')
 master.title(f'PortScape {version} GUI')
 master.geometry('1280x475')
-master.resizable(False, False)
+# master.resizable(False, False)
 master.configure(background='#1d1c2c')
 master.columnconfigure(0, weight=2)
 icon = PhotoImage(file='./extras/favicon.png')
@@ -93,7 +93,7 @@ def start():
 	if cmswvar.get() == 0:
 		cmcentreopt = pltvar.get()
 		cmsidesopt = pltvar2.get()
-	if cmswvar.get() == 1:
+	if cmswvar.get() == 1: # If switched
 		cmcentreopt = pltvar2.get()
 		cmsidesopt = pltvar.get()
 
@@ -202,7 +202,6 @@ def start():
 
 	# Seperation borders
 	if sepbvar.get() == 1:
-		print(sepbddvar.get())
 		if sepbddvar.get() == 'Normal':
 			rectbord = ImageDraw.Draw(bkg)
 			blc = (bkg.size[0]/2) - (origimg.size[0]/2) # Border left coordinate
@@ -263,7 +262,6 @@ def cmcommand(option):
 def blurcommand(n): # Command to set the scale values
 	global bsstart, bsend, bluropt
 	bsstart, bsend = IntVar(blurframe), IntVar(blurframe)
-	print(bluropt.get())
 
 	if bluropt.get() == 2:
 		bssvar, bsevar = '-100', '100'
@@ -379,41 +377,79 @@ def cmwset():
 		cmwcolour.configure(background=cmwvar.get())
 	else:
 		pass
+#here
+# cmblab = Label(cmframe, text='Blacks:', bg='#1d1c2c', fg='#d7ceff') # CM Black label
 
-cmblab = Label(cmframe, text='Blacks:', bg='#1d1c2c', fg='#d7ceff') # CM Black label
+# cmbvar = StringVar()
+# cmbvar.set('#000000')
+# cmb = Button(cmframe, text='Choose colour', command=cmbset, width=11, bg='#1d1c2c', fg='#8d73ff', activebackground='#1d1c2c' , activeforeground='#8d73ff')
 
-cmbvar = StringVar()
-cmbvar.set('#000000')
-cmb = Button(cmframe, text='Choose colour', command=cmbset, width=11, bg='#1d1c2c', fg='#8d73ff', activebackground='#1d1c2c' , activeforeground='#8d73ff')
+# cmbcolour = Button(cmframe, bg='#1d1c2c', width=2) # Button to display selected colour, couldnt be bothered to use tkinter canvas
 
-cmbcolour = Button(cmframe, bg='#1d1c2c', width=2) # Button to display selected colour, couldnt be bothered to use tkinter canvas
+# cmwlab = Label(cmframe, text='Whites:', bg='#1d1c2c', fg='#d7ceff') # CM White label
 
-cmwlab = Label(cmframe, text='Whites:', bg='#1d1c2c', fg='#d7ceff') # CM Black label
+# cmwvar = StringVar()
+# cmwvar.set('#FFFFFF')
+# cmw = Button(cmframe, text='Choose colour', command=cmwset, width=11, bg='#1d1c2c', fg='#8d73ff', activebackground='#1d1c2c' , activeforeground='#8d73ff')
 
-cmwvar = StringVar()
-cmwvar.set('#FFFFFF')
-cmw = Button(cmframe, text='Choose colour', command=cmwset, width=11, bg='#1d1c2c', fg='#8d73ff', activebackground='#1d1c2c' , activeforeground='#8d73ff')
+# cmwcolour = Button(cmframe, bg='#1d1c2c', width=2)
 
-cmwcolour = Button(cmframe, bg='#1d1c2c', width=2)
+# invvar = IntVar()
+# invvar.set(0)
+# invbutton = Checkbutton(cmframe, text='Invert Values', variable=invvar, bg='#1d1c2c', fg='#8d73ff', activebackground='#1d1c2c' , activeforeground='#8d73ff') # Invert white and black
 
-invvar = IntVar()
-invvar.set(0)
-invbutton = Checkbutton(cmframe, text='Invert Values', variable=invvar, bg='#1d1c2c', fg='#8d73ff', activebackground='#1d1c2c' , activeforeground='#8d73ff') # Invert white and black
+# cmb.config(state='disabled')
+# cmw.config(state='disabled')
+# invbutton.config(state='disabled')
+# cmbcolour.config(state='disabled')
+# cmwcolour.config(state='disabled')
 
-cmb.config(state='disabled')
-cmw.config(state='disabled')
-invbutton.config(state='disabled')
-cmbcolour.config(state='disabled')
-cmwcolour.config(state='disabled')
-
-cmblab.grid(row=0, column=0)
-cmbcolour.grid(row=0, column=1)
-cmb.grid(row=0, column=2)
-cmwlab.grid(row=0, column=3)
-cmwcolour.grid(row=0, column=4)
-cmw.grid(row=0, column=5)
-invbutton.grid(row=0, column=6)
+# cmblab.grid(row=0, column=0)
+# cmbcolour.grid(row=0, column=1)
+# cmb.grid(row=0, column=2)
+# cmwlab.grid(row=0, column=3)
+# cmwcolour.grid(row=0, column=4)
+# cmw.grid(row=0, column=5)
+# invbutton.grid(row=0, column=6)
 # cmframe.columnconfigure(5, pad=20)
+#to here
+
+colguiopts = ['Blacks:','Whites:','Mids:'] # Options for colourise function
+colvals = ['#000000','#FFFFFF',None] # Colourise values
+colshowlist = [] # List of colshow widgets
+coln = len(colguiopts)-1
+
+def colset(n): # argument from colour chooser button
+	print(colshow.grid_info())
+	col = colorchooser.askcolor() # Opens colour picker
+	if col[1] != None:
+		colvals[n] = col[1] # Sets colval array to hex value
+		colshowlist[n].configure(background=colvals[n])
+	else:
+		pass
+
+def colourisegui(n,name):
+	global coln
+	colvar = StringVar() # Colourise variable
+	collab = Label(cmframe, text=name, bg='#1d1c2c', fg='#d7ceff')
+	global colshow
+	colshow = Button(cmframe, bg='#1d1c2c', width=2) # Shows what colour is chosen
+	colshowlist.append(colshow) # Adds colshow widget to list to be configured individually later
+	colchoose = Button(cmframe, text='Choose colour', command=functools.partial(colset, n), width=11, bg='#1d1c2c', fg='#8d73ff', activebackground='#1d1c2c' , activeforeground='#8d73ff') # Choose colour button
+	# https://stackoverflow.com/questions/32037769/how-do-i-link-python-tkinter-widgets-created-in-a-for-loop
+
+	collab.grid(row=0, column=3*n)
+	colshow.grid(row=0, column=3*n+1)
+	colshow.config(state='disabled')
+	colchoose.grid(row=0, column=3*n+2)
+
+	
+	coln -= 1
+
+[colourisegui(coln,colguiopts[coln]) for loop in range(coln+1)]
+colshowlist.reverse() # Reverses colshowlist since widgets were added in reverse order
+
+
 
 
 ## Matplotlib Colour Map dropdown
@@ -589,8 +625,12 @@ messlabel.grid(row=10, column=0)
 
 
 ### Right Subframe
+pswidth = master.winfo_width()//1.6 # Preview section width
+psheight = 9*pswidth//16
 
-preview = Canvas(rightsubframe, width=800, height=450, bg='#5a49a4')
+print(pswidth)
+
+preview = Canvas(rightsubframe, width=pswidth, height=psheight, bg='#5a49a4')
 preview.grid(row=0, column=0)
 pimg = ImageTk.PhotoImage(file='./extras/pimg.png')
 preview.create_image(0, 0, image=pimg, anchor='nw')
