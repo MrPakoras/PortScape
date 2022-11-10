@@ -1,4 +1,4 @@
-version = 'v6.3.2' # Fixed colourise function
+version = 'v6.4' # Added bluropt buttons to edit sides and centre.
 
 
 import os, time, re, mimetypes, math, threading, tkinter, functools
@@ -68,7 +68,9 @@ def start():
 		messvar.set(mvar)
 		browse()
 
+	global centreimg
 	origimg = img # Original image to be used later
+	centreimg = img # Central image to be edited seperately to side images
 	wid, hei = math.ceil(img.size[1]*(16/9)), img.size[1] # Working out 16:9 width for original height
 
 	# print(f'>> Orig size:   {img.size}')
@@ -78,7 +80,8 @@ def start():
 	global bkg
 	bkg = i.new(mode, (wid, hei)) # Background
 
-	if cmvar.get() == 1: # Colour map
+
+	if cmvar.get() == 1: # Colourise
 		if invvar.get() == 1:
 			cmblack = colvals[1]
 			cmwhite = colvals[0]
@@ -90,9 +93,13 @@ def start():
 		img = img.convert('L') # Convert to greyscale
 		img = ImageOps.colorize(img, black=cmblack, white=cmwhite, mid=cmmid) # colour map
 
+		if atccolvar.get() == 1: # If apply to centre is clicked
+			centreimg = img # Apply edit to centre
+
+
 	## Matplotlib colour map
 
-	if cmswvar.get() == 0:
+	if cmswvar.get() == 0: # Colour map switch values 
 		cmcentreopt = pltvar.get()
 		cmsidesopt = pltvar2.get()
 	if cmswvar.get() == 1: # If switched
@@ -121,6 +128,10 @@ def start():
 
 
 	## Blur Options
+	blurimg = img # Image for blur options to effect
+	preblurimg = img # Image before blur options to be pasted later
+	pbcentimg = centreimg # Centre image before blur options
+
 	blurval = int(blurslider.get()) # Slider value
 
 	
@@ -130,25 +141,35 @@ def start():
 		else:
 			print('>> Applying Gaussian Blur...')
 			# blur = hei/()*8
-			img = img.filter(ImageFilter.GaussianBlur(radius=(blurval*0.1))) # Gaussian blur
+			blurimg = blurimg.filter(ImageFilter.GaussianBlur(radius=(blurval*0.1))) # Gaussian blur
 
 	if bluropt.get() == 1: # Pixellate
 		# pixw = (2*img.size[0]//(blurval+1))//(2**((img.size[0]//1000)-1))
 		# pixh = (2*img.size[1]//(blurval+1))//(2**((img.size[1]//1000)-1))
 
-		pixw = 2*img.size[0]//(blurval+1)
-		pixh = 2*img.size[1]//(blurval+1)
+		pixw = 2*blurimg.size[0]//(blurval+1)
+		pixh = 2*blurimg.size[1]//(blurval+1)
 
-		imgpix = img.resize((pixw, pixh), resample=i.BILINEAR)
-		img = imgpix.resize(img.size, i.NEAREST)
+		imgpix = blurimg.resize((pixw, pixh), resample=i.BILINEAR)
+		blurimg = imgpix.resize(img.size, i.NEAREST)
 
 	if bluropt.get() == 2: # Darken
 		# https://stackoverflow.com/questions/43618910/pil-drawing-a-semi-transparent-square-overlay-on-image
 		# img = i.eval(img, lambda x: x*((blurval/50)+0))
 
 		# https://pythonexamples.org/python-pillow-adjust-image-brightness/
-		enhancer = ImageEnhance.Brightness(img)
-		img = enhancer.enhance(blurval/50)
+		enhancer = ImageEnhance.Brightness(blurimg)
+		blurimg = enhancer.enhance(blurval/50)
+
+	if bosvar.get() == 1:
+		img = blurimg
+	elif bosvar.get() == 0:
+		img = preblurimg
+
+	if bocvar.get() == 1:
+		centreimg = blurimg
+	elif bocvar.get() == 0:
+		centreimg = pbcentimg
 
 
 	## Split image
@@ -180,10 +201,7 @@ def start():
 	bkg.paste(split('t'), box=tspos)
 	bkg.paste(split('b'), box=bspos)
 
-	if cmcentreopt == 'None': # If centre colour map == 'None'
-		bkg.paste(origimg, box=(math.ceil((wid/2)-(img.size[0]/2)), 0)) # Paste original image in the center of new image
-	else:
-		bkg.paste(centreimg, box=(math.ceil((wid/2)-(img.size[0]/2)), 0)) # Paste edited image in the center of new image
+	bkg.paste(centreimg, box=(math.ceil((wid/2)-(img.size[0]/2)), 0)) # Paste edited image in the center of new image
 	
 
 	## Borders
@@ -251,10 +269,11 @@ def create():
 	messvar.set(mvar)
 
 def cmcommand(option):
-	global img, cmimg
+	global centreimg, cmimg
+	cmimg = centreimg
 	print(f'>> Applying {option} colour map...')
 	pltcm = matplotlib.cm.get_cmap(option) # color map
-	cmimg = img.convert('L')
+	cmimg = cmimg.convert('L')
 	cmimg = np.array(cmimg)
 	cmimg = pltcm(cmimg)
 	cmimg = np.uint8(cmimg*255)
@@ -334,19 +353,17 @@ def cmoption(): # When CM button is clicked
 	if cmvar.get() == 1:
 		[x.config(state='normal') for x in colchooselist] # Sets all colour picker buttons' states to normal
 		[n.configure(background=colvals[colshowlist.index(n)]) for n in colshowlist] # Sets colour show buttons to their respective colours
+		atccolbutton.config(state='normal') # Apply to centre button
 		invbutton.config(state='normal') # Invert values button
 		mrbutton.config(state='normal') # Mid tones reset button
-
-	if cmvar.get() == 1:# or plbvar.get() == 1:
-		atcb.config(state='normal') # Apply to Centre button
-		bothb.config(state='normal') # Both button
 
 	else:
 		[x.config(state='disabled') for x in colchooselist] # Sets all colour picker buttons' states to disabled
 		[n.configure(background='#1d1c2c') for n in colshowlist] # resets colours
+		atccolbutton.config(state='disabled') # Apply to centre button
+		atccolvar.set(0) # Deselects apply to centre button
 		invbutton.config(state='disabled')
-		atcb.config(state='disabled')
-		bothb.config(state='disabled')
+		invvar.set(0) # Deselects invert values button
 		mrbutton.config(state='disabled')
 
 
@@ -356,11 +373,18 @@ cmbutton = Checkbutton(checkframe, text='Colourise', variable=cmvar, command=cmo
 cmbutton.grid(row=0, column=0)
 cmbutton.config(state='normal')
 
+# Apply colourise to centre
+atccolvar = IntVar()
+atccolvar.set(0)
+atccolbutton = Checkbutton(checkframe, text='Apply to Centre', variable=atccolvar, bg='#1d1c2c', fg='#8d73ff', activebackground='#1d1c2c' , activeforeground='#8d73ff') # Invert white and black
+atccolbutton.grid(row=0, column=1)
+atccolbutton.config(state='disabled')
+
 # Invert colouriser values
 invvar = IntVar()
 invvar.set(0)
 invbutton = Checkbutton(checkframe, text='Invert Values', variable=invvar, bg='#1d1c2c', fg='#8d73ff', activebackground='#1d1c2c' , activeforeground='#8d73ff') # Invert white and black
-invbutton.grid(row=0, column=1)
+invbutton.grid(row=0, column=2)
 invbutton.config(state='disabled')
 
 # Reset mid tones
@@ -369,7 +393,7 @@ def midreset():
 	colshowlist[2].configure(background='#1d1c2c')
 
 mrbutton = Button(checkframe, text='Reset Mid', command=midreset, bg='#1d1c2c', fg='#8d73ff', activebackground='#1d1c2c' , activeforeground='#8d73ff') # Button to reset mid tones in colourise function
-mrbutton.grid(row=0, column=2)
+mrbutton.grid(row=0, column=3)
 mrbutton.config(state='disabled')
 
 ## Colouriser
@@ -555,8 +579,25 @@ sepbdd.bind('<FocusIn>', defocus)
 blurframe = Frame(leftsubframe, bg='#d7ceff', padx=5, pady=5)
 blurframe.grid(row=lsfframeslist.index('blurframe')+2, pady=5)
 
-brbframe = Frame(blurframe, bg='#d7ceff', padx=5, pady=5) # Blur radio button frame
-brbframe.grid(row=0)
+# Centre and Sides 
+bcbframe = Frame(blurframe, bg='#d7ceff') # Blur check box frame
+bcbframe.grid(row=0)
+
+bosvar = IntVar() # Blur options sides var
+bosvar.set(0)
+bocvar = IntVar() # Blur options centre var
+bocvar.set(0)
+
+bosidescheck = Checkbutton(bcbframe, text='Sides', variable=bosvar, bg='#d7ceff', fg='#1d1c2c', activebackground='#d7ceff' , activeforeground='#1d1c2c') # Blur Options Sides Check button
+bocentrecheck = Checkbutton(bcbframe, text='Centre', variable=bocvar, bg='#d7ceff', fg='#1d1c2c', activebackground='#d7ceff' , activeforeground='#1d1c2c') # Blur Options Centre Check button
+
+bosidescheck.grid(row=0, column=0)
+bocentrecheck.grid(row=0, column=1)
+
+
+# Different options
+brbframe = Frame(blurframe, bg='#d7ceff') # Blur radio button frame
+brbframe.grid(row=1)
 
 bluropt = IntVar()
 bluropt.set(0)
@@ -570,12 +611,13 @@ pixrb.grid(row=0, column=1)
 darkrb = Radiobutton(brbframe, text='Darken', value=2, variable=bluropt, command=blurcommand(2), bg='#d7ceff', fg='#5a49a4', activebackground='#d7ceff' , activeforeground='#5a49a4') # Darken radio button
 darkrb.grid(row=0, column=2)
 
+# Blur Slider
 # blurlabel = Label(blurframe, text='Blur Amount', bg='#d7ceff', fg='#5a49a4')
 # blurlabel.grid(row=0, column=0)
 global bsstart, bsend
 # blurslider = Scale(blurframe, from_=bsstart.get(), to=bsend.get(), orient=HORIZONTAL, length=350, bg='#8d73ff', fg='#1d1c2c')
 blurslider = ttk.Scale(blurframe, from_=bsstart.get(), to=bsend.get(), orient=HORIZONTAL, length=350)
-blurslider.grid(row=1, column=0)
+blurslider.grid(row=2, column=0)
 
 
 
